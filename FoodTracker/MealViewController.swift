@@ -13,12 +13,27 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var photoImageView: UIImageView!
     @IBOutlet weak var ratingControl: RatingControl!
+    @IBOutlet weak var saveButton: UIBarButtonItem!
+
+    var meal: Meal?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Handle the text field's user input through delegate callbacks
         nameTextField.delegate = self
+
+        checkValidMealName()
+    }
+
+    // MARK: Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if saveButton === sender as? UIBarButtonItem {
+            let name = nameTextField.text ?? ""
+            let photo = photoImageView.image
+            let rating = ratingControl.rating
+            meal = Meal(name: name, photo: photo, rating: rating)
+        }
     }
 
     // MARK: Actions
@@ -30,15 +45,29 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         present(imagePickerController, animated: true, completion: nil)
     }
 
+    @IBAction func cancel(_ sender: UIBarButtonItem) {
+        dismiss(animated: true, completion: nil)
+    }
+
     // MARK: UITextFieldDelegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         // Hide the keyboard
         textField.resignFirstResponder()
         return true
     }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
 
+    func checkValidMealName() {
+        let text = nameTextField.text ?? ""
+        saveButton.isEnabled = !text.isEmpty
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        saveButton.isEnabled = false
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        checkValidMealName()
+        navigationItem.title = textField.text
     }
 
     // MARK: UIImagePickerControllerDelegate
